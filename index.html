@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17110d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Comanda do Espeto</title>
+<style>
+:root{--bg:#17110d;--card:#241a14;--card2:#2f231b;--txt:#f6ece4;--mut:#b9a698;--acc:#ff7a1a;--onacc:#1b0e03;--ok:#3ecf7a;--bad:#ff6b6b;--line:#3a2c22;--r:14px}
+@media(prefers-color-scheme:light){:root{--bg:#fbf6f1;--card:#fff;--card2:#f3e9df;--txt:#2a1d14;--mut:#7a6656;--acc:#e8600a;--onacc:#fff;--ok:#16a34a;--bad:#d63636;--line:#e6d8ca}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.35 system-ui,-apple-system,Roboto,sans-serif}
+body.lock{overflow:hidden}
+button,input,textarea{font:inherit;color:inherit}
+header#top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line)}
+header#top h1{margin:0;font-size:22px}
+main#view{padding:8px 14px calc(96px + env(safe-area-inset-bottom))}
+nav#nav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav#nav button{flex:1;background:none;border:0;padding:8px 2px 9px;color:var(--mut);font-size:11px;position:relative}
+nav#nav button span{display:block;font-size:22px;line-height:1.2}
+nav#nav button.on{color:var(--acc);font-weight:700}
+#fiadoDot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--bad)}
+.btn{min-height:48px;border:0;border-radius:12px;font-weight:700;padding:0 16px;background:var(--card2);color:var(--txt);cursor:pointer}
+.btn:active{filter:brightness(.9)}
+.btn.sm{min-height:38px;padding:0 12px;font-size:14px}
+.btn.pri{background:var(--acc);color:var(--onacc)}
+.btn.ok{background:var(--ok);color:#06240f}
+.btn.bad{background:var(--bad);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.full{width:100%;margin-top:10px}
+input,textarea,select{width:100%;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--card2);padding:10px 12px}
+.cimg{background:#fff;border-radius:12px;overflow:hidden;text-align:center;margin:10px 0;color:#444}
+.cimg img{width:100%;display:block}
+textarea{resize:vertical}
+label{display:block;margin:12px 0 4px;font-size:14px;color:var(--mut)}
+.row{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:var(--r);padding:12px 14px;margin:8px 0}
+.row.tap{cursor:pointer}
+.row.tap:active{filter:brightness(.92)}
+.grow{flex:1;min-width:0}
+.grow b{overflow-wrap:anywhere}
+.mut{color:var(--mut)}.sm{font-size:13px}
+.badge{font-size:13px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap}
+.b-open{background:var(--acc);color:var(--onacc)}
+.b-fiado{background:var(--bad);color:#fff}
+.bar{display:flex;gap:8px;margin:8px 0}
+.note{display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--card2);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px}
+.note.bad{border-left:4px solid var(--bad)}
+.empty{color:var(--mut);text-align:center;padding:22px 10px}
+.empty.big{font-size:20px;padding:50px 10px}
+.sec{margin:18px 0 6px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.pad{padding:0 2px}
+.card{background:var(--card);border-radius:var(--r);padding:14px;margin:8px 0}
+.hero .num{font-size:34px;font-weight:800;margin:2px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{background:var(--card2);border-radius:99px;padding:5px 10px;font-size:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid2 .card{margin:0}
+.grid2 b{font-size:20px}
+.bad-t{color:var(--bad)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.prod{display:flex;flex-direction:column;justify-content:space-between;gap:4px;min-height:68px;text-align:left;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+.prod:active{background:var(--acc);color:var(--onacc)}
+.prod b{color:var(--acc)}
+.prod:active b{color:var(--onacc)}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:40px;height:40px;border-radius:10px;border:0;background:var(--card2);font-size:22px;font-weight:700;cursor:pointer}
+.qty b{min-width:20px;text-align:center}
+.sub{min-width:74px;text-align:right;font-weight:700}
+#sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;display:none}
+#sheet.open{display:block}
+.shead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line)}
+#sheet .pad{padding:0 14px 20px}
+#sheet .note{margin:8px 14px}
+.sbar{position:sticky;bottom:0;display:flex;align-items:center;gap:10px;background:var(--card);border-top:1px solid var(--line);padding:12px 14px calc(12px + env(safe-area-inset-bottom))}
+.tot{flex:1}.tot span{display:block;font-size:13px;color:var(--mut)}.tot b{font-size:24px}
+.acts{display:flex;gap:8px}
+.acts .btn{min-width:110px}
+.acts2{display:flex;gap:8px;margin-top:12px}
+.acts2 .btn{flex:1}
+.srow{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.line{display:flex;align-items:center;gap:10px;cursor:pointer}
+#pop{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);display:none;align-items:flex-end}
+#pop.open{display:flex}
+.pop-card{width:100%;max-height:92vh;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.pop-card h3{margin:0 0 6px}
+.mbtns{display:grid;gap:8px;margin:14px 0 8px}
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:#000d;color:#fff;padding:10px 16px;border-radius:99px;font-size:14px;max-width:90vw;display:none;text-align:center}
+
+.prod .stk{font-size:12px;font-weight:600;color:var(--mut)}
+.prod .stk.low{color:#f5a524}.prod .stk.out{color:var(--bad)}
+.prod:active .stk{color:var(--onacc)}
+.seg{display:flex;background:var(--card);border-radius:12px;padding:4px;margin:8px 0}
+.seg button{flex:1;min-height:40px;border:0;border-radius:9px;background:none;font-weight:700;color:var(--mut)}
+.seg button.on{background:var(--acc);color:var(--onacc)}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{font-size:12px;color:var(--mut);text-align:right;font-weight:600;padding:2px 4px}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{text-align:right;padding:7px 4px;border-top:1px solid var(--line)}
+.tbl td.low{color:#f5a524}.tbl td.out{color:var(--bad)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:8px 0}
+.cal .wd{text-align:center;font-size:12px;color:var(--mut);padding:4px 0}
+.day{position:relative;aspect-ratio:1;border:0;border-radius:10px;background:var(--card);font-weight:600;font-size:15px;cursor:pointer}
+.day.has{background:var(--card2)}
+.day.today{outline:2px solid var(--acc)}
+.day u{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.day.live u{background:var(--acc)}
+.calhead{display:flex;align-items:center;gap:8px;margin:8px 0}
+.calhead b{flex:1;text-align:center;font-size:18px}
+.srow2{padding:10px 0;border-top:1px solid var(--line)}
+.stp{display:flex;gap:6px;align-items:center;margin-top:6px}
+.stp button{min-width:44px;height:44px;border-radius:10px;border:0;background:var(--card2);font-weight:700;font-size:20px;cursor:pointer}
+.stp .ten{font-size:15px;padding:0 10px}
+.stp input{flex:1;min-width:0;text-align:center;min-height:44px;font-size:18px;font-weight:700}
+</style>
+</head>
+<body>
+<header id="top"><h1 id="title">Comanda do Espeto</h1></header>
+<main id="view"></main>
+<nav id="nav">
+  <button data-act="tab" data-tab="comandas"><span>🔥</span>Comandas</button>
+  <button data-act="tab" data-tab="fiado"><span>📒</span>Fiado<i id="fiadoDot" hidden></i></button>
+  <button data-act="tab" data-tab="caixa"><span>💰</span>Caixa</button>
+  <button data-act="tab" data-tab="cardapio"><span>🍢</span>Cardápio</button>
+  <button data-act="tab" data-tab="mais"><span>⚙️</span>Mais</button>
+</nav>
+<div id="sheet"></div>
+<div id="pop"></div>
+<div id="toast"></div>
+
+<script src="qr.js"></script>
+<script>
+'use strict';
+/* ====== Dados (tudo salvo só no celular, em localStorage) ====== */
+const KEY='comanda_espeto_v1';
+const AV='avulso';
+const METHODS={dinheiro:'💵 Dinheiro',pix:'⚡ Pix',cartao:'💳 Cartão'};
+function defaults(){return{v:1,business:'',logo:'',pix:'',pixType:'',pixName:'',pixCity:'',products:[],clients:[],sales:[],closings:[],shiftStart:Date.now(),shiftStock:{},shiftDay:null,lastAct:0,stockSkip:false,lastBackup:0};}
+function normalize(d){
+  d=Object.assign(defaults(),d||{});
+  ['products','clients','sales','closings'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});
+  d.clients.forEach(c=>{if(!Array.isArray(c.open))c.open=[];});
+  if(!d.clients.some(c=>c.id===AV))d.clients.unshift({id:AV,name:'Venda avulsa',builtin:true,open:[]});
+  if(!d.shiftStock||typeof d.shiftStock!=='object')d.shiftStock={};
+  return d;
+}
+function load(){let d=null;try{const r=localStorage.getItem(KEY);if(r)d=JSON.parse(r);}catch(e){}return normalize(d);}
+let S=load();
+let ui={tab:'comandas',q:'',cid:null,exp:{},cx:'hoje',cal:null};
+let deferredPrompt=null,pickCb=null;
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('⚠️ Não consegui salvar! Faça um backup.');}}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const money=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}).replace(/ /g,' ');
+function parseMoney(s){
+  s=String(s).replace(/[^\d,.]/g,'');if(!s)return null;
+  if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');
+  const n=parseFloat(s);return isFinite(n)&&n>=0?Math.round(n*100):null;
+}
+const dt=t=>new Date(t).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+const dtt=t=>new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const sum=a=>a.reduce((x,s)=>x+s.total,0);
+const client=id=>S.clients.find(c=>c.id===id);
+const openTotal=c=>c.open.reduce((a,i)=>a+i.price*i.qty,0);
+const fiadoSales=id=>S.sales.filter(s=>s.clientId===id&&s.status==='fiado');
+const firstName=n=>String(n||'').trim().split(/\s+/)[0]||'';
+const standalone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
+const itemsText=s=>s.items.map(i=>i.qty+'x '+i.name).join(', ');
+
+function fPhone(v){const d=v.replace(/\D/g,'').slice(0,11);if(!d)return'';if(d.length<3)return'('+d;if(d.length<7)return`(${d.slice(0,2)}) ${d.slice(2)}`;if(d.length<11)return`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;return`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;}
+function fCPF(v){const d=v.replace(/\D/g,'').slice(0,11);return d.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}
+function waNumber(p){let d=String(p||'').replace(/\D/g,'').replace(/^0+/,'');if(!d)return'';if(d.length<=11)d='55'+d;return d;}
+
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',2600);}
+
+/* ====== Estoque do dia ====== */
+const dayKey=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const fmtDay=k=>{const a=k.split('-').map(Number);return new Date(a[0],a[1]-1,a[2]).toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});};
+const tm=t=>new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+const cDay=c=>c.day||dayKey(c.start);
+function ensureDay(){const n=Date.now();if(!S.shiftDay)S.shiftDay=dayKey(n);S.lastAct=n;}
+const itemIs=(i,p)=>i.pid?i.pid===p.id:i.name===p.name;
+function usedQty(p){let n=0;S.sales.forEach(s=>{if(s.soldAt>=S.shiftStart)s.items.forEach(i=>{if(itemIs(i,p))n+=i.qty;});});S.clients.forEach(c=>c.open.forEach(i=>{if(itemIs(i,p))n+=i.qty;}));return n;}
+const tracked=p=>S.shiftStock[p.id]!==undefined;
+const remaining=p=>S.shiftStock[p.id]-usedQty(p);
+function stockRows(){return S.products.filter(tracked).map(p=>{const took=S.shiftStock[p.id],sold=usedQty(p);return{pid:p.id,name:p.name,took,sold,left:took-sold};});}
+const lastLeft=()=>(S.closings[0]&&S.closings[0].stock)||{};
+function stkBadge(p){if(!tracked(p))return'';const r=remaining(p);return`<span class="stk ${r<=0?'out':r<=3?'low':''}">${r<=0?'acabou':'restam '+r}</span>`;}
+function stockTable(rows,last){
+  return`<table class="tbl"><tr><th></th><th>Levou</th><th>Saiu</th><th>${last}</th></tr>`+rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${r.took}</td><td>${r.sold}</td><td class="${r.left<=0?'out':r.left<=3?'low':''}"><b>${r.left}</b></td></tr>`).join('')+'</table>';
+}
+function staleHtml(){
+  if(!S.shiftDay||!S.lastAct||S.shiftDay===dayKey(Date.now())||Date.now()-S.lastAct<6*36e5)return'';
+  return`<div class="note bad"><span>⚠️ O expediente de ${esc(fmtDay(S.shiftDay))} ainda está aberto.</span><button class="btn sm" data-act="closeShift">Encerrar</button></div>`;
+}
+
+/* ====== Vendas ====== */
+function settle(cid,status,method){
+  const c=client(cid);if(!c||!c.open.length)return null;
+  const now=Date.now();ensureDay();
+  const sale={id:uid(),clientId:cid,clientName:c.name,items:c.open.map(i=>({pid:i.pid,name:i.name,price:i.price,qty:i.qty})),total:openTotal(c),status,method:status==='paid'?method:null,soldAt:now,paidAt:status==='paid'?now:null,fiadoAt:status==='fiado'?now:null};
+  S.sales.push(sale);c.open=[];save();return sale;
+}
+function payFiado(saleId,method){const s=S.sales.find(x=>x.id===saleId);if(!s||s.status!=='fiado')return;s.status='paid';s.method=method;s.paidAt=Date.now();ensureDay();}
+function shiftStats(){
+  const st=S.shiftStart;
+  const received=S.sales.filter(s=>s.status==='paid'&&s.paidAt>=st);
+  const by={dinheiro:0,pix:0,cartao:0};received.forEach(s=>by[s.method]=(by[s.method]||0)+s.total);
+  const oldFiado=sum(received.filter(s=>s.fiadoAt&&s.fiadoAt<st));
+  const fiadoNew=sum(S.sales.filter(s=>s.status==='fiado'&&s.fiadoAt>=st));
+  const prods={};S.sales.filter(s=>s.soldAt>=st).forEach(s=>s.items.forEach(i=>prods[i.name]=(prods[i.name]||0)+i.qty));
+  const open=S.clients.filter(c=>c.open.length);
+  return{received:sum(received),by,oldFiado,fiadoNew,prods,openCount:open.length,openTotal:open.reduce((a,c)=>a+openTotal(c),0)};
+}
+function doClose(){
+  const x=shiftStats(),now=Date.now(),stock={};
+  stockRows().forEach(r=>{stock[r.pid]={name:r.name,took:r.took,sold:r.sold,left:r.left};});
+  const rec={id:uid(),start:S.shiftStart,end:now,day:S.shiftDay||dayKey(now),received:x.received,by:x.by,fiado:x.fiadoNew,prods:x.prods,stock};
+  S.closings.unshift(rec);S.shiftStart=now;S.shiftDay=null;S.shiftStock={};S.stockSkip=false;S.lastAct=0;save();return rec;
+}
+function summaryText(rec){
+  let t=`📅 ${fmtDay(rec.day)}${S.business?' — '+S.business:''}\nRecebido: ${money(rec.received)} (${Object.keys(METHODS).map(k=>METHODS[k].replace(/^\S+ /,'')+' '+money(rec.by[k]||0)).join(', ')})\n`;
+  if(rec.fiado)t+=`Ficou no fiado: ${money(rec.fiado)}\n`;
+  const rows=Object.values(rec.stock||{});
+  if(rows.length)t+='\nEstoque:\n'+rows.map(r=>`• ${r.name}: levou ${r.took}, saiu ${r.sold}, sobrou ${r.left}`).join('\n');
+  return t;
+}
+function buildMsg(c){
+  const sales=fiadoSales(c.id).sort((a,b)=>a.soldAt-b.soldAt);
+  let m=`Oi, ${firstName(c.name)}! Tudo bem? Passando pra lembrar do fiado${S.business?' no '+S.business:''}:\n\n`;
+  sales.forEach(s=>{
+    m+=`📅 ${dt(s.soldAt)}\n`;
+    s.items.forEach(i=>{m+=`• ${i.qty}x ${i.name} — ${money(i.price*i.qty)}\n`;});
+    if(sales.length>1)m+=`Subtotal: ${money(s.total)}\n`;
+    m+='\n';
+  });
+  m+=`*Total a pagar: ${money(sum(sales))}*\n\n`;
+  if(S.pix)m+=`Chave Pix:\n${pixShow()}\n\n`;
+  m+='Obrigado! 🙏';
+  return m;
+}
+function buildCaption(c){
+  const t=sum(fiadoSales(c.id));
+  let m=`Oi, ${firstName(c.name)}! Tudo bem? Segue sua comanda do fiado${S.business?' no '+S.business:''}.\n\n*Total a pagar: ${money(t)}*\n\n`;
+  if(S.pix)m+=`Chave Pix${PIX_TYPES[S.pixType]?' ('+PIX_TYPES[S.pixType]+')':''}:\n${pixShow()}\n\n`;
+  return m+'Obrigado! 🙏';
+}
+
+/* ====== Pix (BR Code do Banco Central) ====== */
+const PIX_TYPES={cpf:'CPF',cnpj:'CNPJ',phone:'Celular',email:'E-mail',random:'Chave aleatória'};
+function pixKey(){
+  const t=S.pixType,raw=String(S.pix||'').trim();if(!t||!raw)return null;
+  const dg=raw.replace(/\D/g,'');
+  if(t==='cpf')return dg.length===11?dg:null;
+  if(t==='cnpj')return dg.length===14?dg:null;
+  if(t==='phone'){const n=dg.replace(/^55(?=\d{10,11}$)/,'');return n.length===10||n.length===11?'+55'+n:null;}
+  if(t==='email')return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)?raw.toLowerCase():null;
+  if(t==='random')return/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw)?raw.toLowerCase():null;
+  return null;
+}
+function pixShow(){
+  const raw=String(S.pix||'').trim(),dg=raw.replace(/\D/g,'');
+  if(S.pixType==='cpf'&&dg.length===11)return fCPF(dg);
+  if(S.pixType==='phone'){const n=dg.replace(/^55(?=\d{10,11}$)/,'');if(n.length>=10&&n.length<=11)return fPhone(n);}
+  return raw;
+}
+const pixAscii=(s,max)=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9 ]/g,' ').replace(/\s+/g,' ').trim().toUpperCase().slice(0,max).trim();
+function crc16(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++)c=(c&0x8000)?((c<<1)^0x1021):(c<<1);c&=0xFFFF;}return c.toString(16).toUpperCase().padStart(4,'0');}
+const tlv=(id,v)=>id+String(v.length).padStart(2,'0')+v;
+function pixPayload(key,name,city,cents){
+  let p=tlv('00','01')+tlv('26',tlv('00','BR.GOV.BCB.PIX')+tlv('01',key))+tlv('52','0000')+tlv('53','986');
+  if(cents>0)p+=tlv('54',(cents/100).toFixed(2));
+  p+=tlv('58','BR')+tlv('59',name)+tlv('60',city)+tlv('62',tlv('05','***'))+'6304';
+  return p+crc16(p);
+}
+function pixInfo(cents){
+  if(!String(S.pix||'').trim())return{ok:false,why:'Cadastre a chave Pix em Mais.'};
+  if(!S.pixType)return{ok:false,why:'Escolha o tipo da chave Pix em Mais.'};
+  const key=pixKey();if(!key)return{ok:false,why:'A chave Pix não bate com o tipo escolhido.'};
+  const name=pixAscii(S.pixName||S.business,25);if(!name)return{ok:false,why:'Preencha o nome do recebedor em Mais.'};
+  const city=pixAscii(S.pixCity,15)||'BRASIL';
+  return{ok:true,payload:pixPayload(key,name,city,cents),name};
+}
+
+/* ====== Imagem da comanda (logo, itens, total, QR Pix) ====== */
+const FONT='system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
+const loadImg=src=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});
+const canvasBlob=cv=>new Promise(r=>cv.toBlob(b=>r(b),'image/png'));
+function wrapLines(ctx,text,maxW){
+  const out=[];
+  String(text).split('\n').forEach(par=>{
+    let line='';
+    par.split(' ').forEach(w=>{
+      while(ctx.measureText(w).width>maxW&&w.length>1){
+        let i=w.length;while(i>1&&ctx.measureText(w.slice(0,i)).width>maxW)i--;
+        if(line){out.push(line);line='';}
+        out.push(w.slice(0,i));w=w.slice(i);
+      }
+      const t=line?line+' '+w:w;
+      if(line&&ctx.measureText(t).width>maxW){out.push(line);line=w;}else line=t;
+    });
+    out.push(line);
+  });
+  return out;
+}
+async function drawComanda(c){
+  const sales=fiadoSales(c.id).sort((a,b)=>a.soldAt-b.soldAt),total=sum(sales),px=pixInfo(total);
+  let logo=null;if(S.logo){try{logo=await loadImg(S.logo);}catch(e){}}
+  const W=720,P=40,IW=W-2*P,SC=2,INK='#231a14',MUT='#7a6a5f',ACC='#e8600a',LINE='#e7ddd3';
+  function paint(ctx,draw){
+    let y=P;
+    const font=(wt,s)=>{ctx.font=wt+' '+s+'px '+FONT;};
+    const ax=al=>al==='center'?W/2:al==='right'?W-P:P;
+    const put=(t,size,wt,col,al,gap)=>{font(wt,size);ctx.fillStyle=col;ctx.textAlign=al||'left';if(draw)ctx.fillText(t,ax(al),y+size);y+=size*1.35+(gap||0);};
+    const putWrap=(t,size,wt,col,al)=>{font(wt,size);wrapLines(ctx,t,IW).forEach(l=>put(l,size,wt,col,al));};
+    const row=(l,r,size,wt,col)=>{font(wt,size);wrapLines(ctx,l,IW-170).forEach((t,i)=>{ctx.fillStyle=col;if(draw){ctx.textAlign='left';ctx.fillText(t,P,y+size);if(i===0){ctx.textAlign='right';ctx.fillText(r,W-P,y+size);}}y+=size*1.4;});};
+    const hr=()=>{y+=6;if(draw){ctx.fillStyle=LINE;ctx.fillRect(P,y,IW,2);}y+=18;};
+    if(logo){const k=Math.min(360/logo.width,150/logo.height),w=logo.width*k,h=logo.height*k;if(draw)ctx.drawImage(logo,(W-w)/2,y,w,h);y+=h+12;}
+    if(S.business)putWrap(S.business,logo?26:34,'700',INK,'center');
+    hr();
+    putWrap('Comanda de '+c.name,30,'700',INK);
+    put('Fiado em aberto · '+new Date().toLocaleDateString('pt-BR'),20,'400',MUT,'left',10);
+    sales.forEach(s=>{
+      put('Compra de '+dt(s.soldAt),20,'700',ACC);
+      s.items.forEach(i=>row(i.qty+'x '+i.name,money(i.price*i.qty),24,'400',INK));
+      if(sales.length>1)row('Subtotal',money(s.total),20,'400',MUT);
+      y+=10;
+    });
+    hr();
+    if(draw){ctx.fillStyle='#fff3e8';const x=P,w=IW,h=84,r=16;ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();ctx.fill();
+      ctx.fillStyle=INK;ctx.textAlign='left';font('700',26);ctx.fillText('TOTAL',P+22,y+54);
+      ctx.fillStyle=ACC;ctx.textAlign='right';font('800',44);ctx.fillText(money(total),W-P-22,y+58);}
+    y+=84+30;
+    if(px.ok){
+      put('Pague com Pix',26,'700',INK,'center',6);
+      const qr=qrcode(0,'M');qr.addData(px.payload);qr.make();
+      const n=qr.getModuleCount(),cell=Math.max(3,Math.floor(340/(n+8))),size=(n+8)*cell,x0=(W-size)/2;
+      if(draw){ctx.fillStyle='#fff';ctx.fillRect(x0,y,size,size);ctx.fillStyle='#000';
+        for(let r=0;r<n;r++)for(let q=0;q<n;q++)if(qr.isDark(r,q))ctx.fillRect(x0+(q+4)*cell,y+(r+4)*cell,cell,cell);
+        ctx.strokeStyle=LINE;ctx.lineWidth=2;ctx.strokeRect(x0,y,size,size);}
+      y+=size+16;
+      put('Chave Pix ('+PIX_TYPES[S.pixType]+')',20,'400',MUT,'center');
+      putWrap(pixShow(),28,'700',INK,'center');
+      put('Recebedor: '+px.name,18,'400',MUT,'center');
+    }else if(String(S.pix||'').trim()){
+      put('Chave Pix',20,'400',MUT,'center');
+      putWrap(pixShow(),28,'700',INK,'center');
+    }
+    y+=8;put('Obrigado!',22,'400',MUT,'center');
+    return y+P/2;
+  }
+  const m=document.createElement('canvas');m.width=W;m.height=10;
+  const H=Math.ceil(paint(m.getContext('2d'),false));
+  const cv=document.createElement('canvas');cv.width=W*SC;cv.height=H*SC;
+  const ctx=cv.getContext('2d');ctx.scale(SC,SC);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);paint(ctx,true);
+  return cv;
+}
+
+/* ====== Telas ====== */
+const TITLES={comandas:'Comandas',fiado:'Fiado',caixa:'Caixa',cardapio:'Cardápio',mais:'Mais'};
+function render(){
+  $('#title').textContent=ui.tab==='comandas'&&S.business?S.business:TITLES[ui.tab];
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===ui.tab));
+  $('#fiadoDot').hidden=!S.sales.some(s=>s.status==='fiado');
+  $('#view').innerHTML=({comandas:vComandas,fiado:vFiado,caixa:vCaixa,cardapio:vCardapio,mais:vMais})[ui.tab]();
+  if(ui.cid)renderSheet();
+}
+
+function clientList(){
+  const q=norm(ui.q),qd=ui.q.replace(/\D/g,'');
+  const list=S.clients.filter(c=>!c.builtin&&(!q||norm(c.name).includes(q)||(qd&&(c.phone||'').replace(/\D/g,'').includes(qd))));
+  if(!list.length)return`<div class="empty">${S.clients.some(c=>!c.builtin)?'Nenhum cliente encontrado.':'Nenhum cliente ainda. Toque em <b>+ Cliente</b>.'}</div>`;
+  const rank=c=>openTotal(c)>0?0:(fiadoSales(c.id).length?1:2);
+  list.sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name,'pt-BR'));
+  return list.map(c=>{const o=openTotal(c),f=sum(fiadoSales(c.id));
+    return`<div class="row tap" data-act="openC" data-id="${c.id}"><div class="grow"><b>${esc(c.name)}</b>${c.phone?`<div class="mut sm">${esc(c.phone)}</div>`:''}</div>${o?`<span class="badge b-open">${money(o)}</span>`:''}${f?`<span class="badge b-fiado">deve ${money(f)}</span>`:''}</div>`;}).join('');
+}
+function vComandas(){
+  const av=client(AV);let h='';
+  if(deferredPrompt&&!standalone())h+=`<div class="note"><span>📲 Instale na tela inicial pra abrir direto.</span><button class="btn pri sm" data-act="install">Instalar</button></div>`;
+  h+=staleHtml();
+  if(S.products.length&&!S.stockSkip&&!Object.keys(S.shiftStock).length)h+=`<div class="note"><span>📦 Informe o que levou hoje pra controlar o estoque.</span><span style="display:flex;gap:6px"><button class="btn pri sm" data-act="stockOpen">Informar</button><button class="btn sm" data-act="stockSkip">Agora não</button></span></div>`;
+  if(!S.products.length)h+=`<div class="note bad"><span>Primeiro monte o cardápio com os preços.</span><button class="btn pri sm" data-act="tab" data-tab="cardapio">Ir</button></div>`;
+  h+=`<div class="bar"><input id="q" type="search" placeholder="Buscar cliente…" value="${esc(ui.q)}" autocomplete="off"><button class="btn pri" data-act="newClient" style="white-space:nowrap">+ Cliente</button></div>`;
+  h+=`<div class="row tap" data-act="openC" data-id="${AV}"><div class="grow"><b>⚡ Venda avulsa</b><div class="mut sm">Pagou na hora, sem cadastro</div></div>${av.open.length?`<span class="badge b-open">${money(openTotal(av))}</span>`:''}</div>`;
+  return h+`<div id="clist">${clientList()}</div>`;
+}
+
+function renderSheet(){
+  const sh=$('#sheet');
+  if(!ui.cid){sh.classList.remove('open');document.body.classList.remove('lock');return;}
+  const c=client(ui.cid);if(!c){ui.cid=null;return renderSheet();}
+  const st=sh.scrollTop,tot=openTotal(c),ft=sum(fiadoSales(c.id));
+  let h=`<div class="shead"><button class="btn sm" data-act="closeC">← Voltar</button><div class="grow"><b>${esc(c.name)}</b>${c.phone?`<div class="mut sm">${esc(c.phone)}</div>`:''}</div>${c.builtin?'':`<button class="btn sm" data-act="editClient" data-id="${c.id}">✏️</button>`}</div>`;
+  if(ft>0)h+=`<div class="note bad"><span>Deve ${money(ft)} de fiado</span><button class="btn sm" data-act="cobrar" data-id="${c.id}">Cobrar</button></div>`;
+  h+=`<div class="pad"><div class="sec">Toque pra adicionar</div>`;
+  h+=S.products.length?`<div class="grid">${S.products.map(p=>`<button class="prod" data-act="add" data-id="${p.id}"><span>${esc(p.name)}</span><b>${money(p.price)}</b>${stkBadge(p)}</button>`).join('')}</div>`:`<div class="empty">Cadastre os produtos na aba <b>Cardápio</b>.</div>`;
+  h+=`<div class="sec">Comanda</div>`;
+  h+=c.open.length?c.open.map((i,ix)=>`<div class="row"><div class="grow"><b>${esc(i.name)}</b><div class="mut sm">${money(i.price)} cada</div></div><div class="qty"><button data-act="dec" data-i="${ix}">−</button><b>${i.qty}</b><button data-act="inc" data-i="${ix}">+</button></div><div class="sub">${money(i.price*i.qty)}</div></div>`).join(''):`<div class="empty">Nada anotado ainda.</div>`;
+  h+=`</div><div class="sbar"><div class="tot"><span>Total</span><b>${money(tot)}</b></div><div class="acts">`;
+  if(tot>0){if(!c.builtin)h+=`<button class="btn bad" data-act="fiado">📒 Fiado</button>`;h+=`<button class="btn ok" data-act="pagou">✅ Pagou</button>`;}
+  h+=`</div></div>`;
+  sh.innerHTML=h;sh.classList.add('open');document.body.classList.add('lock');sh.scrollTop=st;
+}
+
+function vFiado(){
+  const g={};S.sales.filter(s=>s.status==='fiado').forEach(s=>(g[s.clientId]=g[s.clientId]||[]).push(s));
+  const ids=Object.keys(g).sort((a,b)=>sum(g[b])-sum(g[a]));
+  if(!ids.length)return`<div class="empty big">🎉<br>Ninguém devendo.</div>`;
+  let h=`<div class="card hero"><div class="mut">Total na rua</div><div class="num bad-t">${money(ids.reduce((a,id)=>a+sum(g[id]),0))}</div></div>`;
+  ids.forEach(id=>{
+    const c=client(id),ss=g[id].sort((a,b)=>a.soldAt-b.soldAt),open=ui.exp[id];
+    h+=`<div class="card"><div class="line" data-act="toggleExp" data-id="${id}"><div class="grow"><b>${esc(c?c.name:ss[0].clientName)}</b><div class="mut sm">${ss.length} ${ss.length>1?'compras':'compra'} · desde ${dt(ss[0].soldAt)} ${open?'▲':'▼'}</div></div><b class="bad-t">${money(sum(ss))}</b></div>`;
+    if(open)h+=ss.map(s=>`<div class="srow"><div class="grow"><b>${dt(s.soldAt)}</b> · ${esc(itemsText(s))}</div><b>${money(s.total)}</b><button class="btn sm ok" data-act="receiveOne" data-id="${s.id}">Recebi</button></div>`).join('');
+    h+=`<div class="acts2"><button class="btn pri" data-act="cobrar" data-id="${id}">📲 Cobrar no Zap</button><button class="btn ok" data-act="receiveAll" data-id="${id}">💰 Recebeu</button></div></div>`;
+  });
+  return h;
+}
+
+function vCaixa(){
+  const t=ui.cx||'hoje';
+  return`<div class="seg"><button class="${t==='hoje'?'on':''}" data-act="cxTab" data-t="hoje">Hoje</button><button class="${t==='cal'?'on':''}" data-act="cxTab" data-t="cal">📅 Calendário</button></div>`+(t==='cal'?vCal():vHoje());
+}
+function vHoje(){
+  const x=shiftStats(),rows=stockRows();
+  let h=staleHtml()+`<div class="mut sm" style="margin:6px 2px">${S.shiftDay?'Expediente de '+esc(fmtDay(S.shiftDay)):'Hoje, '+esc(fmtDay(dayKey(Date.now())))+' · o dia é marcado na primeira venda'}</div>`;
+  h+=`<div class="card hero"><div class="mut">💰 Recebido no expediente</div><div class="num">${money(x.received)}</div><div class="chips">${Object.keys(METHODS).map(k=>`<span>${METHODS[k]} <b>${money(x.by[k]||0)}</b></span>`).join('')}</div>${x.oldFiado?`<div class="mut sm" style="margin-top:8px">Inclui ${money(x.oldFiado)} de fiado antigo que entrou hoje</div>`:''}</div>`;
+  h+=`<div class="grid2"><div class="card"><div class="mut sm">📒 Ficou no fiado</div><b class="bad-t">${money(x.fiadoNew)}</b></div><div class="card"><div class="mut sm">🔥 Comandas abertas (${x.openCount})</div><b>${money(x.openTotal)}</b></div></div>`;
+  h+=`<div class="sec">📦 Estoque de hoje</div><div class="card">${rows.length?stockTable(rows,'Resta'):'<div class="mut sm">Informe o que levou e o app vai descontando a cada venda.</div>'}<button class="btn full ${rows.length?'':'pri'}" data-act="stockOpen">${rows.length?'Ajustar o que levei':'Informar o que levei hoje'}</button></div>`;
+  const oth={};S.sales.filter(s=>s.soldAt>=S.shiftStart).forEach(s=>s.items.forEach(i=>{const p=S.products.find(q=>itemIs(i,q));if(!(p&&tracked(p)))oth[i.name]=(oth[i.name]||0)+i.qty;}));
+  const ok=Object.keys(oth).sort((a,b)=>oth[b]-oth[a]);
+  if(ok.length)h+=`<div class="sec">${rows.length?'Outros que saíram (sem estoque)':'O que saiu'}</div><div class="card">${ok.map(k=>`<div class="srow" style="border:0;padding:4px 0"><div class="grow">${esc(k)}</div><b>${oth[k]}</b></div>`).join('')}</div>`;
+  return h+`<button class="btn pri full" data-act="closeShift">🔒 Encerrar expediente</button>`;
+}
+function vCal(){
+  const now=new Date();if(!ui.cal)ui.cal={y:now.getFullYear(),m:now.getMonth()};
+  const y=ui.cal.y,m=ui.cal.m,pre=y+'-'+String(m+1).padStart(2,'0')+'-';
+  const by={};S.closings.forEach(c=>(by[cDay(c)]=by[cDay(c)]||[]).push(c));
+  const first=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate(),today=dayKey(Date.now());
+  let cells='DSTQQSS'.split('').map(l=>`<div class="wd">${l}</div>`).join('')+'<i></i>'.repeat(first);
+  for(let d=1;d<=n;d++){const k=pre+String(d).padStart(2,'0'),has=by[k],live=S.shiftDay===k;
+    cells+=`<button class="day${has?' has':''}${live?' live':''}${k===today?' today':''}" data-act="dayDet" data-day="${k}">${d}${has||live?'<u></u>':''}</button>`;}
+  const keys=Object.keys(by).filter(k=>k.startsWith(pre)).sort().reverse();
+  const rec=keys.reduce((a,k)=>a+by[k].reduce((z,c)=>z+c.received,0),0),fia=keys.reduce((a,k)=>a+by[k].reduce((z,c)=>z+(c.fiado||0),0),0);
+  let h=`<div class="calhead"><button class="btn sm" data-act="calGo" data-d="-1">‹</button><b>${(l=>l.charAt(0).toUpperCase()+l.slice(1))(new Date(y,m,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}))}</b><button class="btn sm" data-act="calGo" data-d="1">›</button></div><div class="cal">${cells}</div>`;
+  h+=`<div class="mut sm" style="text-align:center"><span style="color:var(--ok)">●</span> dia encerrado · <span style="color:var(--acc)">●</span> em andamento</div>`;
+  h+=`<div class="grid2" style="margin-top:12px"><div class="card"><div class="mut sm">Dias trabalhados</div><b>${keys.length}</b></div><div class="card"><div class="mut sm">Recebido no mês</div><b>${money(rec)}</b></div></div>`;
+  if(keys.length)h+=`<div class="sec">Dias do mês</div>`+keys.map(k=>`<div class="row tap" data-act="dayDet" data-day="${k}"><div class="grow"><b>${esc(fmtDay(k))}</b>${by[k].length>1?`<div class="mut sm">${by[k].length} expedientes</div>`:''}</div><div style="text-align:right"><b>${money(by[k].reduce((z,c)=>z+c.received,0))}</b>${by[k].some(c=>c.fiado)?`<div class="sm bad-t">fiado ${money(by[k].reduce((z,c)=>z+(c.fiado||0),0))}</div>`:''}</div></div>`).join('');
+  else h+=`<div class="empty">Nenhum dia encerrado neste mês.</div>`;
+  return h;
+}
+function dayDetail(k){
+  const list=S.closings.filter(c=>cDay(c)===k).sort((a,b)=>a.start-b.start);
+  let h=`<h3>${esc(fmtDay(k))}</h3>`;
+  if(S.shiftDay===k){const x=shiftStats(),rows=stockRows();
+    h+=`<div class="sec">Em andamento</div><div class="card"><b>${money(x.received)}</b> recebido${x.fiadoNew?` · <span class="bad-t">fiado ${money(x.fiadoNew)}</span>`:''}${rows.length?`<div style="margin-top:8px">${stockTable(rows,'Resta')}</div>`:''}</div>`;}
+  list.forEach(c=>{const rows=Object.values(c.stock||{});
+    h+=`<div class="sec">${tm(c.start)} → ${tm(c.end)}</div><div class="card"><div class="num" style="font-size:26px;font-weight:800">${money(c.received)}</div><div class="chips">${Object.keys(METHODS).map(q=>`<span>${METHODS[q]} <b>${money((c.by||{})[q]||0)}</b></span>`).join('')}</div>${c.fiado?`<div class="sm bad-t" style="margin-top:8px">Ficou no fiado: ${money(c.fiado)}</div>`:''}<div style="margin-top:10px">${rows.length?stockTable(rows,'Sobrou'):'<div class="mut sm">Sem controle de estoque nesse dia.</div>'}</div><button class="btn sm full" data-act="shareSum" data-id="${c.id}">📤 Compartilhar resumo</button></div>`;});
+  if(!list.length&&S.shiftDay!==k)h+=`<div class="empty">Sem expediente nesse dia.</div>`;
+  openPop(h+`<button class="btn ghost full" data-act="popClose">Fechar</button>`);
+}
+function stockForm(){
+  if(!S.products.length){toast('Cadastre o cardápio primeiro');return;}
+  const ll=lastLeft();
+  openPop(`<h3>📦 O que você levou hoje?</h3><div class="mut sm">Digite a quantidade de cada item. Deixe em branco o que não quiser controlar. Cada venda desconta sozinha.</div>${Object.keys(ll).length?'<button class="btn full" data-act="stkFill">Começar com as sobras do último dia</button>':''}${S.products.map(p=>`<div class="srow2"><b>${esc(p.name)}</b>${ll[p.id]?`<span class="mut sm"> · sobrou ${ll[p.id].left} no último dia</span>`:''}<div class="stp"><button data-act="stk" data-d="-1" data-id="${p.id}">−</button><input inputmode="numeric" data-stk="${p.id}" value="${S.shiftStock[p.id]!==undefined?S.shiftStock[p.id]:''}" placeholder="—"><button data-act="stk" data-d="1" data-id="${p.id}">+</button><button class="ten" data-act="stk" data-d="10" data-id="${p.id}">+10</button></div></div>`).join('')}<div class="acts2"><button class="btn ghost" data-act="popClose">Cancelar</button><button class="btn pri" data-act="stkSave">Salvar</button></div>`);
+}
+function showSummary(rec){
+  const rows=Object.values(rec.stock||{});
+  openPop(`<h3>🔒 Dia encerrado</h3><div class="mut sm">${esc(fmtDay(rec.day))}</div><div class="card hero" style="margin:10px 0"><div class="mut">Recebido</div><div class="num">${money(rec.received)}</div><div class="chips">${Object.keys(METHODS).map(k=>`<span>${METHODS[k]} <b>${money(rec.by[k]||0)}</b></span>`).join('')}</div></div>${rec.fiado?`<div class="note bad"><span>Ficou no fiado</span><b>${money(rec.fiado)}</b></div>`:''}${rows.length?`<div class="sec">Sobrou de cada item</div>${stockTable(rows,'Sobrou')}`:'<div class="mut sm">Hoje você não informou o estoque. Amanhã informe o que levou e eu mostro o que sobrou.</div>'}<div class="acts2"><button class="btn" data-act="shareSum" data-id="${rec.id}">📤 Compartilhar</button><button class="btn pri" data-act="popClose">Fechar</button></div>`);
+}
+
+function vCardapio(){
+  let h=`<div class="acts2" style="margin-top:8px"><button class="btn pri" data-act="newProd">+ Produto</button><button class="btn" data-act="bulkProd">Vários de uma vez</button></div>`;
+  if(!S.products.length)return h+`<div class="empty">Cadastre espetinhos e bebidas com o preço.<br>Dica: use <b>Vários de uma vez</b>.</div>`;
+  return h+S.products.map(p=>`<div class="row tap" data-act="editProd" data-id="${p.id}"><div class="grow"><b>${esc(p.name)}</b></div><b>${money(p.price)}</b><span class="mut">✏️</span></div>`).join('');
+}
+
+function pixHintHtml(){const i=pixInfo(0);return i.ok?'<div class="note">✅ Pix pronto — o QR Code vai na imagem da comanda.</div>':`<div class="note bad">⚠️ ${esc(i.why)}</div>`;}
+function vMais(){
+  const stale=!S.lastBackup||Date.now()-S.lastBackup>7*864e5;
+  const opts='<option value="">Escolha…</option>'+Object.keys(PIX_TYPES).map(k=>`<option value="${k}"${S.pixType===k?' selected':''}>${PIX_TYPES[k]}</option>`).join('');
+  return`<div class="pad"><div class="sec">Sua marca</div>
+<label>Nome do espeto</label><input id="cfgBiz" value="${esc(S.business)}" placeholder="Ex: Espetinho do Zé" autocomplete="off">
+<label>Logo (aparece no topo da comanda)</label>
+<div class="row" style="margin:0">${S.logo?`<img src="${S.logo}" alt="logo" style="height:64px;max-width:45%;object-fit:contain;background:#fff;border-radius:8px;padding:4px">`:'<span class="mut sm">Sem logo ainda</span>'}<div class="grow"></div><button class="btn sm pri" data-act="pickLogo">${S.logo?'Trocar':'Escolher'}</button>${S.logo?'<button class="btn sm bad" data-act="rmLogo">Remover</button>':''}</div>
+<input type="file" id="logoFile" accept="image/*" hidden>
+<div class="sec">Pix</div>
+<label>Tipo da chave</label><select id="cfgPixType">${opts}</select>
+<label>Chave Pix</label><input id="cfgPix" value="${esc(S.pix)}" placeholder="Digite a chave" autocomplete="off">
+<label>Nome do recebedor (igual ao do banco)</label><input id="cfgPixName" maxlength="25" value="${esc(S.pixName)}" placeholder="${esc(S.business||'Nome completo')}" autocomplete="off">
+<label>Cidade</label><input id="cfgPixCity" maxlength="15" value="${esc(S.pixCity)}" placeholder="Sua cidade" autocomplete="off">
+<div id="pixHint" style="margin-top:8px">${pixHintHtml()}</div>
+<div class="sec">Backup</div><div class="note ${stale?'bad':''}">${S.lastBackup?'Último backup: '+dtt(S.lastBackup):'Você ainda não fez backup'}</div>
+<div class="acts2"><button class="btn pri" data-act="backup">💾 Salvar backup</button><button class="btn" data-act="restore">📂 Restaurar</button></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<div class="mut sm" style="margin-top:8px">Tudo fica só neste celular (logo e Pix inclusos no backup). Se limpar os dados do navegador ou trocar de aparelho, só o backup salva. Dica: mande o arquivo pro seu próprio WhatsApp.</div>
+${deferredPrompt&&!standalone()?'<button class="btn full" data-act="install">📲 Instalar na tela inicial</button>':''}
+<div class="sec">Zona de perigo</div><button class="btn bad full" data-act="wipe">Apagar tudo</button></div>`;
+}
+function setLogo(file){
+  const r=new FileReader();
+  r.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const k=Math.min(1,480/Math.max(img.width,img.height)),w=Math.max(1,Math.round(img.width*k)),h=Math.max(1,Math.round(img.height*k));
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d');x.drawImage(img,0,0,w,h);
+      let u=cv.toDataURL('image/png');
+      if(u.length>900000){x.globalCompositeOperation='destination-over';x.fillStyle='#fff';x.fillRect(0,0,w,h);u=cv.toDataURL('image/jpeg',0.85);}
+      S.logo=u;save();render();toast('Logo salva ✅');
+    };
+    img.onerror=()=>toast('Não consegui ler essa imagem');
+    img.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+
+/* ====== Pop-ups ====== */
+function openPop(h){const p=$('#pop');p.innerHTML=`<div class="pop-card">${h}</div>`;p.classList.add('open');}
+let imgUrl=null,imgBlob=null,imgTok=0;
+function closePop(){imgTok++;imgBlob=null;if(imgUrl){URL.revokeObjectURL(imgUrl);imgUrl=null;}$('#pop').classList.remove('open');}
+function askMethod(title,sub,cb){
+  pickCb=cb;
+  openPop(`<h3>${esc(title)}</h3><div class="mut">${esc(sub)}</div><div class="mbtns">${Object.keys(METHODS).map(k=>`<button class="btn pri" data-act="pickM" data-m="${k}">${METHODS[k]}</button>`).join('')}</div><button class="btn ghost full" data-act="popClose">Cancelar</button>`);
+}
+function clientForm(c){
+  openPop(`<h3>${c?'Editar cliente':'Novo cliente'}</h3><form id="cf" data-id="${c?c.id:''}"><label>Nome</label><input name="name" required autocomplete="off" value="${esc(c&&c.name)}"><label>WhatsApp</label><input name="phone" inputmode="tel" placeholder="(16) 99999-9999" value="${esc(c&&c.phone)}"><label>CPF (opcional)</label><input name="cpf" inputmode="numeric" placeholder="000.000.000-00" value="${esc(c&&c.cpf)}"><div class="acts2"><button type="button" class="btn ghost" data-act="popClose">Cancelar</button><button class="btn pri">Salvar</button></div>${c?`<button type="button" class="btn bad full" data-act="delClient" data-id="${c.id}">Excluir cliente</button>`:''}</form>`);
+}
+function prodForm(p){
+  openPop(`<h3>${p?'Editar produto':'Novo produto'}</h3><form id="pf" data-id="${p?p.id:''}"><label>Nome</label><input name="name" required autocomplete="off" value="${esc(p&&p.name)}" placeholder="Espetinho de carne"><label>Preço (R$)</label><input name="price" required inputmode="decimal" placeholder="8,00" value="${p?esc((p.price/100).toFixed(2).replace('.',',')):''}"><div class="acts2"><button type="button" class="btn ghost" data-act="popClose">Cancelar</button><button class="btn pri">Salvar</button></div>${p?`<button type="button" class="btn bad full" data-act="delProd" data-id="${p.id}">Excluir produto</button>`:''}</form>`);
+}
+function bulkForm(){
+  openPop(`<h3>Vários de uma vez</h3><div class="mut sm">Um por linha, nome e preço no final.</div><form id="bf"><textarea name="t" rows="8" placeholder="Espetinho de carne 8&#10;Espetinho de frango 7,50&#10;Cerveja lata 6&#10;Refri 5"></textarea><div class="acts2"><button type="button" class="btn ghost" data-act="popClose">Cancelar</button><button class="btn pri">Adicionar</button></div></form>`);
+}
+function cobrar(id){
+  const c=client(id);if(!c||!fiadoSales(id).length){toast('Sem fiado pra cobrar');return;}
+  const info=pixInfo(sum(fiadoSales(id)));
+  openPop(`<h3>Cobrar ${esc(c.name)}</h3><div id="cimgbox" class="cimg"><div class="sm" style="padding:36px 0">Gerando imagem…</div></div>${info.ok?'':`<div class="note bad">⚠️ Sem QR Code: ${esc(info.why)}</div>`}${!c.phone?'<div class="note bad">⚠️ Cliente sem WhatsApp cadastrado.</div>':''}<label>Legenda (vai junto com a imagem)</label><textarea id="msg" rows="8">${esc(buildCaption(c))}</textarea><button class="btn pri full" data-act="shareImg" data-id="${id}">🖼️ Enviar imagem + legenda</button><div class="acts2"><button class="btn" data-act="copyMsg">Copiar legenda</button>${info.ok?`<button class="btn" data-act="copyPix" data-id="${id}">Copiar Pix copia e cola</button>`:''}</div><button class="btn full" data-act="sendMsg" data-id="${id}">💬 Só texto direto no Zap</button><button class="btn ghost full" data-act="popClose">Fechar</button>`);
+  const tok=++imgTok;imgBlob=null;
+  drawComanda(c).then(canvasBlob).then(b=>{
+    if(tok!==imgTok||!b)return;
+    imgBlob=b;if(imgUrl)URL.revokeObjectURL(imgUrl);imgUrl=URL.createObjectURL(b);
+    const bx=$('#cimgbox');if(bx)bx.innerHTML=`<img src="${imgUrl}" alt="Comanda">`;
+  }).catch(()=>{const bx=$('#cimgbox');if(bx)bx.innerHTML='<div class="sm" style="padding:30px 10px">Não consegui gerar a imagem. Use “Só texto”.</div>';});
+}
+async function shareImg(id){
+  const c=client(id);if(!c)return;
+  if(!imgBlob){toast('A imagem ainda está sendo gerada…');return;}
+  const text=($('#msg')||{}).value||'';
+  const name='comanda-'+(norm(c.name).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'cliente')+'.png';
+  try{
+    const file=new File([imgBlob],name,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text});return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=imgUrl;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  copyText(text);toast('Imagem salva e legenda copiada. Anexe no WhatsApp.');
+}
+function closeShiftFlow(){
+  const open=S.clients.filter(c=>c.open.length&&openTotal(c)>0);
+  if(open.length){
+    openPop(`<h3>Tem comanda aberta</h3><div class="mut sm">Resolva antes de encerrar:</div>${open.map(c=>`<div class="row" style="background:var(--card2)"><div class="grow"><b>${esc(c.name)}</b><div class="mut sm">${money(openTotal(c))}</div></div><button class="btn sm ok" data-act="rPaid" data-id="${c.id}">Pagou</button>${c.builtin?'':`<button class="btn sm bad" data-act="rFiado" data-id="${c.id}">Fiado</button>`}</div>`).join('')}<button class="btn ghost full" data-act="popClose">Cancelar</button>`);
+    return;
+  }
+  const x=shiftStats();
+  const rows=stockRows();
+  openPop(`<h3>Encerrar expediente?</h3><div class="mut">Recebido: <b>${money(x.received)}</b><br>Ficou no fiado: <b>${money(x.fiadoNew)}</b></div>${rows.length?`<div class="sec">Vai sobrar</div>${stockTable(rows,'Sobra')}`:''}<div class="mut sm" style="margin-top:8px">Os clientes continuam cadastrados, com a comanda zerada.</div><div class="acts2"><button class="btn ghost" data-act="popClose">Cancelar</button><button class="btn pri" data-act="doClose">Encerrar</button></div>`);
+}
+
+/* ====== Comanda aberta (com botão voltar do Android) ====== */
+function openComanda(id){ui.cid=id;try{history.pushState({sheet:1},'');}catch(e){}renderSheet();}
+function closeComanda(){
+  if(!ui.cid)return;
+  ui.cid=null;renderSheet();render();
+  try{if(history.state&&history.state.sheet)history.back();}catch(e){}
+}
+window.addEventListener('popstate',()=>{if(ui.cid){ui.cid=null;renderSheet();render();}closePop();});
+
+/* ====== Backup ====== */
+async function doBackup(){
+  const name='comanda-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  const blob=new Blob([JSON.stringify(S)],{type:'application/json'});
+  try{
+    const file=new File([blob],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'Backup da Comanda'});
+      S.lastBackup=Date.now();save();render();return;
+    }
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  S.lastBackup=Date.now();save();render();toast('Backup baixado ✅');
+}
+function doRestore(file){
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d||!Array.isArray(d.products)||!Array.isArray(d.clients))throw 0;
+      if(!confirm('Isso substitui TUDO que está no app agora pelo conteúdo do backup. Continuar?'))return;
+      S=normalize(d);save();ui={tab:'comandas',q:'',cid:null,exp:{},cx:'hoje',cal:null};render();toast('Backup restaurado ✅');
+    }catch(e){toast('Arquivo de backup inválido');}
+  };
+  r.readAsText(file);
+}
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(()=>toast('Copiado ✅'),()=>fallbackCopy(t));
+  fallbackCopy(t);
+}
+function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copiado ✅');}catch(e){toast('Não consegui copiar');}ta.remove();}
+
+/* ====== Ações (cliques) ====== */
+const A={
+  tab(d){ui.tab=d.tab;render();window.scrollTo(0,0);},
+  newClient(){clientForm(null);},
+  editClient(d){clientForm(client(d.id));},
+  openC(d){openComanda(d.id);},
+  closeC(){closeComanda();},
+  add(d){const c=client(ui.cid),p=S.products.find(x=>x.id===d.id);if(!c||!p)return;
+    if(tracked(p)&&remaining(p)<=0)toast('⚠️ Estoque de '+p.name+' zerado (anotei mesmo assim)');
+    ensureDay();
+    const it=c.open.find(i=>i.pid===p.id&&i.price===p.price);if(it)it.qty++;else c.open.push({pid:p.id,name:p.name,price:p.price,qty:1});
+    save();renderSheet();},
+  inc(d){const c=client(ui.cid);if(c&&c.open[d.i]){const p=S.products.find(q=>itemIs(c.open[d.i],q));if(p&&tracked(p)&&remaining(p)<=0)toast('⚠️ Estoque de '+p.name+' zerado');ensureDay();c.open[d.i].qty++;save();renderSheet();}},
+  dec(d){const c=client(ui.cid);if(!c||!c.open[d.i])return;if(--c.open[d.i].qty<=0)c.open.splice(d.i,1);save();renderSheet();},
+  pagou(){const c=client(ui.cid);if(!c)return;
+    askMethod('Como pagou?',`${c.name} · ${money(openTotal(c))}`,m=>{const cid=ui.cid;settle(cid,'paid',m);closeComanda();toast('Pago ✅');});},
+  fiado(){const c=client(ui.cid);if(!c)return;
+    openPop(`<h3>Anotar no fiado?</h3><div class="mut"><b>${esc(c.name)}</b> · ${money(openTotal(c))}</div><div class="acts2"><button class="btn ghost" data-act="popClose">Cancelar</button><button class="btn bad" data-act="fiadoOk">Anotar fiado</button></div>`);},
+  fiadoOk(){const cid=ui.cid,c=client(cid);closePop();settle(cid,'fiado');closeComanda();toast(c&&!c.phone?'Fiado anotado (sem WhatsApp cadastrado)':'Fiado anotado 📒');},
+  popClose(){closePop();},
+  pickM(d){const cb=pickCb;pickCb=null;closePop();if(cb)cb(d.m);},
+  toggleExp(d){ui.exp[d.id]=!ui.exp[d.id];render();},
+  receiveOne(d){const s=S.sales.find(x=>x.id===d.id);if(!s)return;
+    askMethod('Recebeu como?',`${s.clientName} · ${money(s.total)}`,m=>{payFiado(d.id,m);save();render();toast('Recebido ✅');});},
+  receiveAll(d){const ss=fiadoSales(d.id);if(!ss.length)return;
+    askMethod('Recebeu como?',`${ss[0].clientName} · ${money(sum(ss))}`,m=>{fiadoSales(d.id).forEach(s=>payFiado(s.id,m));save();render();toast('Fiado quitado ✅');});},
+  cobrar(d){cobrar(d.id);},
+  copyMsg(){const t=$('#msg');if(t)copyText(t.value);},
+  shareImg(d){shareImg(d.id);},
+  copyPix(d){const i=pixInfo(sum(fiadoSales(d.id)));if(i.ok)copyText(i.payload);},
+  pickLogo(){const f=$('#logoFile');if(f)f.click();},
+  rmLogo(){S.logo='';save();render();},
+  sendMsg(d){const c=client(d.id),n=waNumber(c&&c.phone);
+    if(!n){toast('Cadastre o WhatsApp do cliente');return;}
+    const url='https://wa.me/'+n+'?text='+encodeURIComponent(buildMsg(c));
+    if(!window.open(url,'_blank'))location.href=url;},
+  closeShift(){closeShiftFlow();},
+  rPaid(d){const c=client(d.id);askMethod('Como pagou?',`${c.name} · ${money(openTotal(c))}`,m=>{settle(d.id,'paid',m);render();closeShiftFlow();});},
+  rFiado(d){settle(d.id,'fiado');render();closeShiftFlow();},
+  doClose(){const rec=doClose();closePop();render();window.scrollTo(0,0);showSummary(rec);},
+  cxTab(d){ui.cx=d.t;render();window.scrollTo(0,0);},
+  calGo(d){const c=ui.cal||{y:new Date().getFullYear(),m:new Date().getMonth()};let m=c.m+Number(d.d),y=c.y;if(m<0){m=11;y--;}if(m>11){m=0;y++;}ui.cal={y,m};render();},
+  dayDet(d){dayDetail(d.day);},
+  stockOpen(){stockForm();},
+  stockSkip(){S.stockSkip=true;save();render();},
+  stk(d){const i=document.querySelector('[data-stk="'+d.id+'"]');if(!i)return;i.value=Math.max(0,(parseInt(i.value,10)||0)+Number(d.d));},
+  stkFill(){const ll=lastLeft();document.querySelectorAll('[data-stk]').forEach(i=>{const r=ll[i.dataset.stk];if(r)i.value=Math.max(0,r.left);});},
+  stkSave(){document.querySelectorAll('[data-stk]').forEach(i=>{const v=i.value.trim();if(v==='')delete S.shiftStock[i.dataset.stk];else S.shiftStock[i.dataset.stk]=parseInt(v,10)||0;});ensureDay();save();closePop();render();toast('Estoque do dia salvo ✅');},
+  shareSum(d){const rec=S.closings.find(c=>c.id===d.id);if(!rec)return;const text=summaryText(rec);
+    if(navigator.share){navigator.share({text}).catch(e=>{if(!e||e.name!=='AbortError')copyText(text);});}else copyText(text);},
+  newProd(){prodForm(null);},
+  editProd(d){prodForm(S.products.find(p=>p.id===d.id));},
+  bulkProd(){bulkForm();},
+  delProd(d){if(!confirm('Excluir este produto? As vendas antigas não mudam.'))return;S.products=S.products.filter(p=>p.id!==d.id);save();closePop();render();},
+  delClient(d){const c=client(d.id);if(!c)return;
+    if(c.open.length||fiadoSales(c.id).length){toast('Esse cliente tem comanda aberta ou fiado');return;}
+    if(!confirm('Excluir '+c.name+'?'))return;
+    S.clients=S.clients.filter(x=>x.id!==d.id);save();closePop();closeComanda();render();},
+  backup(){doBackup();},
+  restore(){const f=$('#file');if(f)f.click();},
+  install(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;render();});},
+  wipe(){if(confirm('Apagar TODOS os dados (clientes, fiado, caixa, cardápio)?')&&confirm('Tem certeza? Não dá pra desfazer.')){S=normalize(null);save();ui={tab:'comandas',q:'',cid:null,exp:{},cx:'hoje',cal:null};renderSheet();render();}}
+};
+document.addEventListener('click',e=>{
+  if(e.target.id==='pop'){closePop();return;}
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const f=A[t.dataset.act];if(f)f(t.dataset,t);
+});
+document.addEventListener('submit',e=>{
+  e.preventDefault();const f=e.target,fd=new FormData(f),id=f.dataset.id;
+  if(f.id==='cf'){
+    const name=(fd.get('name')||'').trim(),phone=fd.get('phone')||'',cpf=fd.get('cpf')||'';
+    if(!name){toast('Digite o nome');return;}
+    if(phone&&phone.replace(/\D/g,'').length<10){toast('WhatsApp incompleto (use DDD + número)');return;}
+    if(cpf&&cpf.replace(/\D/g,'').length!==11){toast('CPF incompleto');return;}
+    if(id){const c=client(id);Object.assign(c,{name,phone,cpf});save();closePop();render();}
+    else{const c={id:uid(),name,phone,cpf,open:[]};S.clients.push(c);save();closePop();render();openComanda(c.id);}
+  }else if(f.id==='pf'){
+    const name=(fd.get('name')||'').trim(),price=parseMoney(fd.get('price'));
+    if(!name||price===null){toast('Confira o nome e o preço');return;}
+    if(id){Object.assign(S.products.find(p=>p.id===id),{name,price});}else S.products.push({id:uid(),name,price});
+    save();closePop();render();
+  }else if(f.id==='bf'){
+    let n=0;
+    String(fd.get('t')||'').split('\n').forEach(line=>{
+      const m=line.trim().match(/^(.*?)[\s\-–:]*(?:R\$)?\s*(\d+(?:[.,]\d{1,2})?)\s*$/);
+      if(!m||!m[1].trim())return;const price=parseMoney(m[2]);
+      if(price===null)return;S.products.push({id:uid(),name:m[1].trim(),price});n++;
+    });
+    if(!n){toast('Não entendi. Ex: Cerveja 6,50');return;}
+    save();closePop();render();toast(n+' produto(s) adicionados ✅');
+  }
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='q'){ui.q=t.value;const l=$('#clist');if(l)l.innerHTML=clientList();}
+  else if(t.name==='cpf')t.value=fCPF(t.value);
+  else if(t.name==='phone')t.value=fPhone(t.value);
+  else if(t.id==='cfgBiz'){S.business=t.value.trim();save();$('#title').textContent=TITLES[ui.tab];}
+  else if(t.id==='cfgPix'){S.pix=t.value.trim();save();updPix();}
+  else if(t.id==='cfgPixName'){S.pixName=t.value;save();updPix();}
+  else if(t.id==='cfgPixCity'){S.pixCity=t.value;save();updPix();}
+  else if(t.dataset&&t.dataset.stk!==undefined)t.value=t.value.replace(/\D/g,'').slice(0,5);
+});
+function updPix(){const h=$('#pixHint');if(h)h.innerHTML=pixHintHtml();}
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='file'&&t.files[0]){doRestore(t.files[0]);t.value='';}
+  else if(t.id==='logoFile'&&t.files[0]){setLogo(t.files[0]);t.value='';}
+  else if(t.id==='cfgPixType'){S.pixType=t.value;save();updPix();}
+});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!ui.cid&&ui.tab==='comandas'&&!document.activeElement.matches('input'))render();});
+
+/* ====== Início ====== */
+render();
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+</script>
+</body>
+</html>
